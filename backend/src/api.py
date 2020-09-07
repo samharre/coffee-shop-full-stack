@@ -73,11 +73,9 @@ def get_drinks_detail(jwt_payload):
 '''
 @app.route('/drinks', methods=['POST'])
 @requires_auth('post:drinks')
-def create_drinks(jwt_payload):
+def create_drink(jwt_payload):
     body = request.get_json()
-    if not body:
-        abort(400)
-
+    
     if not ('title' in body and 'recipe' in body):
         abort(422)
 
@@ -107,6 +105,35 @@ def create_drinks(jwt_payload):
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<int:drink_id>', methods=['PATCH'])
+@requires_auth('patch:drinks')
+def update_drink(jwt_payload, drink_id):
+    body = request.get_json()
+    if not ('title' in body or 'recipe' in body):
+        abort(422)
+    
+    drink = Drink.query.get(drink_id)
+    if not drink:
+        abort(404)
+
+    try:
+        title = body.get('title')
+        recipe = body.get('recipe')
+
+        if (title):
+            drink.title = title
+
+        if (recipe):
+            drink.recipe = json.dumps([recipe])
+
+        drink.update()
+
+        return jsonify({
+            'success': True,
+            'drinks': [drink.long()]
+        })
+    except:
+        abort(500)
 
 
 '''
@@ -119,6 +146,22 @@ def create_drinks(jwt_payload):
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<int:drink_id>', methods=['DELETE'])
+@requires_auth('delete:drinks')
+def delete_drint(jwt_payload, drink_id):
+    drink = Drink.query.get(drink_id)
+    if not drink:
+        abort(404)
+
+    try:
+        drink.delete()
+
+        return jsonify({
+            'success': True,
+            'delete': drink_id
+        }) 
+    except:
+        abort(500)
 
 
 ## Error Handling
@@ -142,6 +185,9 @@ def bad_request(error):
 def not_found(error):
     return format_error(404, "Resource not found")
 
+@app.errorhandler(405)
+def method_not_allowed(error):
+    return format_error(405, "Method not allowed")
 
 '''
 Example error handling for unprocessable entity
