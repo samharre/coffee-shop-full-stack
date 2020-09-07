@@ -86,10 +86,8 @@ def create_drinks(jwt_payload):
 
     try:
         drink = Drink(title=title, recipe=json.dumps([recipe]))
-        print('DRINK', drink)
         drink.insert()
-        print('AFTER INSERT')
-
+        
         return jsonify({
             'success': True,
             'drinks': [drink.long()]
