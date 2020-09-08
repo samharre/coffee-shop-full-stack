@@ -56,7 +56,7 @@ def create_drink(jwt_payload):
 
     title = body.get('title')
     recipe = body.get('recipe')
-    recipe = recipe if type(recipe) is list else [recipe]
+    recipe = recipe if isinstance(recipe, list) else [recipe]
 
     try:
         drink = Drink(title=title, recipe=json.dumps(recipe))
@@ -89,7 +89,7 @@ def update_drink(jwt_payload, drink_id):
             drink.title = title
 
         if recipe:
-            recipe = recipe if type(recipe) is list else [recipe]
+            recipe = recipe if isinstance(recipe, list) else [recipe]
             drink.recipe = json.dumps(recipe)
 
         drink.update()
