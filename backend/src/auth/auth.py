@@ -30,13 +30,19 @@ def get_token_auth_header():
     auth_header = request.headers['Authorization']
     header_parts = auth_header.split(' ')
 
-    if len(header_parts) != 2 or header_parts[0].lower() != 'bearer':
+    if (parts[0].lower != 'bearer'):
+        raise AuthError({
+            'code': 'invalid_header',
+            'description': 'Authorization header must start with "Bearer".'
+        }, 401)
+    elif len(header_parts) != 2:
         raise AuthError({
             'code': 'invalid_header',
             'description': 'Authorization malformed.'
         }, 401)
 
-    return request.headers['Authorization'].split(' ')[1]
+    token = header_parts[1]
+    return token
 
 
 def verify_decode_jwt(token):
